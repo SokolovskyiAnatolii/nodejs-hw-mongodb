@@ -10,11 +10,12 @@ export const getContacts = async ({
   sortOrder = SORT_ORDER.ASC,
   sortBy = '_id',
   filter = {},
+  userId,
 }) => {
   const limit = perPage;
   const skip = (page - 1) * perPage;
 
-  const contactQuery = ContactsCollection.find();
+  const contactQuery = ContactsCollection.find({ userId });
 
   if (filter.isFavourite) {
     contactQuery.where('isFavourite').equals(filter.isFavourite);
@@ -24,13 +25,13 @@ export const getContacts = async ({
     contactQuery.where('contactType').equals(filter.contactType);
   }
 
-  const contactCount = await ContactsCollection.find()
+  const contactCount = await ContactsCollection.find({ userId })
     .merge(contactQuery)
     .countDocuments();
 
   const totalPages = Math.ceil(contactCount / perPage);
 
-  if (page > totalPages) {
+  if (page > totalPages && totalPages > 0) {
     throw createHttpError(400, 'Invalid page number');
   }
 
@@ -48,28 +49,27 @@ export const getContacts = async ({
   };
 };
 
-export const getContactById = async (contactId) => {
-  return await ContactsCollection.findById(contactId);
+export const getContactById = (contactId, userId) => {
+  return ContactsCollection.findOne({ _id: contactId, userId });
 };
 
-export const createContact = async (payload) => {
-  return await ContactsCollection.create(payload);
+export const createContact = (payload) => {
+  return ContactsCollection.create(payload);
 };
 
-export const deleteContact = async (contactId) => {
-  return await ContactsCollection.findOneAndDelete({
-    _id: contactId,
-  });
-};
-
-export const updateContact = async (contactId, payload) => {
-  const result = await ContactsCollection.findOneAndUpdate(
-    { _id: contactId },
+export const updateContact = async (contactId, payload, userId) => {
+  const updatedContact = await ContactsCollection.findOneAndUpdate(
+    { _id: contactId, userId },
     payload,
-    {
-      new: true,
-      includeResultMetadata: true,
-    },
+    { new: true, includeResultMetadata: true },
   );
-  return result.value;
+
+  return updatedContact;
+};
+
+export const deleteContact = (contactId, userId) => {
+  return ContactsCollection.findOneAndDelete({
+    _id: contactId,
+    userId,
+  });
 };
