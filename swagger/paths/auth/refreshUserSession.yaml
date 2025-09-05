@@ -1,0 +1,42 @@
+tags:
+  - Auth
+summary: Refresh user session
+operationId: refreshSession
+description: Refreshing user session taking the token from cookies
+security: []
+responses:
+  '200':
+    description: 'Successful refreshing'
+    content:
+      application/json:
+        schema:
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: '200'
+            message:
+              type: string
+              example: 'Successfully refreshed a session!'
+            data:
+              type: object
+              required:
+                - name
+                - accessToken
+              properties:
+                name:
+                  type: string
+                  example: 'John Doe'
+                accessToken:
+                  type: string
+                  example: 'FZ5lUcIf02vxG4jLikawUhFHm2SwUdX5J4ChyJSZQ2sUJYShhEBPmdKF3EUCHtSx'
+  '401':
+    $ref: '../../components/responses/401.yaml'
+    description: 'Session not found'
+  '404':
+    $ref: '../../components/responses/404.yaml'
+  '500':
+    $ref: '../../components/responses/500.yaml'
