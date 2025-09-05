@@ -64,7 +64,7 @@ export const updateContact = async (contactId, payload, userId) => {
     { new: true, includeResultMetadata: true },
   );
 
-  return updatedContact;
+  return updatedContact.value;
 };
 
 export const deleteContact = (contactId, userId) => {
